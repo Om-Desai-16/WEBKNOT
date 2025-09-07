@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Event Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="container bg-white rounded-xl shadow-2xl p-8 my-8">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Admin Portal</h1>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button onclick="showSection('forms')"
+                class="py-2 px-6 font-medium text-lg border-b-2 transition-colors duration-200 ease-in-out tab-button"
+                data-section="forms">Manage Data</button>
+            <button onclick="showSection('reports')"
+                class="py-2 px-6 font-medium text-lg border-b-2 transition-colors duration-200 ease-in-out tab-button"
+                data-section="reports">View Reports</button>
+        </div>
+
+        <!-- Forms Section -->
+        <div id="forms" class="tab-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+
+                <!-- Create Event Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Create Event</h2>
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="event-name">Event Name</label>
+                            <input type="text" id="event-name" placeholder="e.g., Annual Tech Fest">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="event-college-id">College ID</label>
+                            <input type="text" id="event-college-id" placeholder="e.g., 1">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="event-type">Event Type</label>
+                            <select id="event-type">
+                                <option value="Fest">Fest</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Seminar">Seminar</option>
+                            </select>
+                        </div>
+                        <button onclick="createEvent()"
+                            class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 ease-in-out">Create
+                            Event</button>
+                    </div>
+                </div>
+
+                <!-- Create Student Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Add Student</h2>
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="student-first-name">First Name</label>
+                            <input type="text" id="student-first-name" placeholder="e.g., Jane">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="student-last-name">Last Name</label>
+                            <input type="text" id="student-last-name" placeholder="e.g., Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="student-college-id">College ID</label>
+                            <input type="text" id="student-college-id" placeholder="e.g., 1">
+                        </div>
+                        <button onclick="addStudent()"
+                            class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 ease-in-out">Add
+                            Student</button>
+                    </div>
+                </div>
+
+                <!-- Mark Attendance Card -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Mark Attendance</h2>
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="att-student-id">Student ID</label>
+                            <input type="text" id="att-student-id" placeholder="e.g., 1">
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-600 mb-1" for="att-event-id">Event ID</label>
+                            <input type="text" id="att-event-id" placeholder="e.g., 1">
+                        </div>
+                        <button onclick="markAttendance()"
+                            class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 ease-in-out">Mark
+                            Attendance</button>
+                    </div>
+                </div>
+
+            </div>
+            <div id="message-box" class="mt-6 p-4 rounded-md text-white text-center font-bold hidden"></div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="tab-section hidden">
+            <div class="space-y-6 mt-6">
+                <!-- Event Popularity Report -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Event Popularity</h2>
+                    <button onclick="getEventPopularity()"
+                        class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out mb-4">Generate
+                        Report</button>
+                    <div id="popularity-report" class="bg-white p-4 rounded-md max-h-64 overflow-y-auto"></div>
+                </div>
+
+                <!-- Student Participation Report -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Student Participation</h2>
+                    <div class="form-group flex space-x-2">
+                        <input type="text" id="participation-student-id" placeholder="Student ID" class="w-2/3">
+                        <button onclick="getStudentParticipation()"
+                            class="w-1/3 bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out">Generate
+                            Report</button>
+                    </div>
+                    <div id="participation-report" class="bg-white p-4 rounded-md mt-4"></div>
+                </div>
+
+                <!-- Top 3 Students Report -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Top 3 Most Active Students</h2>
+                    <button onclick="getTopStudents()"
+                        class="bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out mb-4">Generate
+                        Report</button>
+                    <div id="top-students-report" class="bg-white p-4 rounded-md max-h-64 overflow-y-auto"></div>
+                </div>
+
+                <!-- Flexible Report -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Events by Type</h2>
+                    <div class="form-group flex space-x-2">
+                        <select id="flexible-event-type" class="w-2/3">
+                            <option value="">-- Select Event Type --</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Fest">Fest</option>
+                            <option value="Seminar">Seminar</option>
+                        </select>
+                        <button onclick="getFlexibleReport()"
+                            class="w-1/3 bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition-colors duration-200 ease-in-out">Generate
+                            Report</button>
+                    </div>
+                    <div id="flexible-report" class="bg-white p-4 rounded-md max-h-64 overflow-y-auto mt-4"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+        function showMessage(message, type = 'success') {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500');
+            if (type === 'success') {
+                msgBox.classList.add('bg-green-500');
+            } else {
+                msgBox.classList.add('bg-red-500');
+            }
+        }
+
+        async function callApi(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || result.message);
+                }
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        function renderTable(data, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            if (data.length === 0) {
+                container.textContent = 'No data found.';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'w-full text-sm text-left text-gray-500 rounded-md overflow-hidden';
+            const header = table.createTHead();
+            const headerRow = header.insertRow(0);
+            const body = table.createTBody();
+
+            const headers = Object.keys(data[0]);
+            headers.forEach(key => {
+                let th = document.createElement('th');
+                th.textContent = key.replace(/_/g, ' ').toUpperCase();
+                th.className = 'py-3 px-6 bg-gray-100 font-bold';
+                headerRow.appendChild(th);
+            });
+
+            data.forEach(item => {
+                const row = body.insertRow();
+                headers.forEach(key => {
+                    const cell = row.insertCell();
+                    cell.textContent = item[key];
+                    cell.className = 'py-3 px-6 border-b';
+                });
+            });
+
+            container.appendChild(table);
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.tab-section').forEach(section => { section.classList.add('hidden'); });
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-blue-500', 'text-blue-500');
+                button.classList.add('text-gray-500', 'hover:text-blue-500');
+            });
+            document.querySelector(`.tab-button[data-section="${sectionId}"]`).classList.add('border-blue-500', 'text-blue-500');
+            document.querySelector(`.tab-button[data-section="${sectionId}"]`).classList.remove('text-gray-500', 'hover:text-blue-500');
+        }
+        document.addEventListener('DOMContentLoaded', () => showSection('forms'));
+
+        // Admin-specific functions
+        async function createEvent() {
+            const name = document.getElementById('event-name').value;
+            const collegeId = document.getElementById('event-college-id').value;
+            const eventType = document.getElementById('event-type').value;
+            if (!name || !collegeId || !eventType) { showMessage('All fields are required.', 'error'); return; }
+
+            try {
+                const data = { name, college_id: parseInt(collegeId), event_type: eventType, date_time: new Date().toISOString() };
+                const result = await callApi('/events', 'POST', data);
+                showMessage(result.message || 'Event created successfully!');
+            } catch (error) { showMessage(error.message, 'error'); }
+        }
+
+        async function addStudent() {
+            const firstName = document.getElementById('student-first-name').value;
+            const lastName = document.getElementById('student-last-name').value;
+            const collegeId = document.getElementById('student-college-id').value;
+            if (!firstName || !lastName || !collegeId) { showMessage('All fields are required.', 'error'); return; }
+
+            try {
+                const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
+                const data = { college_id: parseInt(collegeId), first_name: firstName, last_name: lastName, email };
+                const result = await callApi('/students', 'POST', data);
+                showMessage(result.message || 'Student added successfully!');
+            } catch (error) { showMessage(error.message, 'error'); }
+        }
+
+        async function markAttendance() {
+            const studentId = document.getElementById('att-student-id').value;
+            const eventId = document.getElementById('att-event-id').value;
+            if (!studentId || !eventId) { showMessage('Please enter both IDs.', 'error'); return; }
+
+            try {
+                const data = { student_id: parseInt(studentId) };
+                const result = await callApi(`/events/${eventId}/attendance`, 'POST', data);
+                showMessage(result.message);
+            } catch (error) { showMessage(error.message, 'error'); }
+        }
+
+        // Report generation functions
+        async function getEventPopularity() {
+            try {
+                const data = await callApi('/reports/popularity');
+                renderTable(data, 'popularity-report');
+            } catch (error) { document.getElementById('popularity-report').textContent = error.message; }
+        }
+
+        async function getStudentParticipation() {
+            const studentId = document.getElementById('participation-student-id').value;
+            if (!studentId) { document.getElementById('participation-report').textContent = 'Please enter a Student ID.'; return; }
+            try {
+                const data = await callApi(`/reports/students/${studentId}`);
+                if (data.message) { document.getElementById('participation-report').textContent = data.message; }
+                else { document.getElementById('participation-report').textContent = `Student: ${data.first_name} ${data.last_name}\nEvents Attended: ${data.events_attended_count}`; }
+            } catch (error) { document.getElementById('participation-report').textContent = error.message; }
+        }
+
+        async function getTopStudents() {
+            try {
+                const data = await callApi('/reports/top_students');
+                renderTable(data, 'top-students-report');
+            } catch (error) { document.getElementById('top-students-report').textContent = error.message; }
+        }
+
+        async function getFlexibleReport() {
+            const eventType = document.getElementById('flexible-event-type').value;
+            let endpoint = '/reports/events';
+            if (eventType) { endpoint += `?type=${eventType}`; }
+            try {
+                const data = await callApi(endpoint);
+                renderTable(data, 'flexible-report');
+            } catch (error) { document.getElementById('flexible-report').textContent = error.message; }
+        }
+    </script>
+
+</body>
+
+</html>

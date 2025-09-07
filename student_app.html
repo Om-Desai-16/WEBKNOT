@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student App - Event Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="container bg-white rounded-xl shadow-2xl p-8 my-8">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">Student App</h1>
+
+        <div class="space-y-6">
+            <!-- Student Registration Card -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Event Registration</h2>
+                <div class="space-y-4">
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="reg-student-id">Your Student ID</label>
+                        <input type="text" id="reg-student-id" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="reg-event-id">Event ID to Register</label>
+                        <input type="text" id="reg-event-id" placeholder="e.g., 1">
+                    </div>
+                    <button onclick="registerStudent()"
+                        class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 ease-in-out">Register
+                        for Event</button>
+                </div>
+            </div>
+
+            <!-- Submit Feedback Card -->
+            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Submit Feedback</h2>
+                <div class="space-y-4">
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="fb-student-id">Your Student ID</label>
+                        <input type="text" id="fb-student-id" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="fb-event-id">Event ID</label>
+                        <input type="text" id="fb-event-id" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="fb-rating">Rating (1-5)</label>
+                        <input type="number" id="fb-rating" min="1" max="5" placeholder="e.g., 4">
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-gray-600 mb-1" for="fb-comment">Comment</label>
+                        <textarea id="fb-comment" rows="3" placeholder="Optional comments..."></textarea>
+                    </div>
+                    <button onclick="submitFeedback()"
+                        class="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 ease-in-out">Submit
+                        Feedback</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="message-box" class="mt-6 p-4 rounded-md text-white text-center font-bold hidden"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+        function showMessage(message, type = 'success') {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden', 'bg-red-500', 'bg-green-500');
+            if (type === 'success') {
+                msgBox.classList.add('bg-green-500');
+            } else {
+                msgBox.classList.add('bg-red-500');
+            }
+        }
+
+        async function callApi(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || result.message);
+                }
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        async function registerStudent() {
+            const studentId = document.getElementById('reg-student-id').value;
+            const eventId = document.getElementById('reg-event-id').value;
+            if (!studentId || !eventId) {
+                showMessage('Please enter both Student ID and Event ID.', 'error');
+                return;
+            }
+            try {
+                const data = { student_id: parseInt(studentId) };
+                const result = await callApi(`/events/${eventId}/register`, 'POST', data);
+                showMessage(result.message);
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        async function submitFeedback() {
+            const studentId = document.getElementById('fb-student-id').value;
+            const eventId = document.getElementById('fb-event-id').value;
+            const rating = document.getElementById('fb-rating').value;
+            const comment = document.getElementById('fb-comment').value;
+
+            if (!studentId || !eventId || !rating) {
+                showMessage('Please enter Student ID, Event ID, and Rating.', 'error');
+                return;
+            }
+            if (rating < 1 || rating > 5) {
+                showMessage('Rating must be between 1 and 5.', 'error');
+                return;
+            }
+
+            try {
+                const data = {
+                    student_id: parseInt(studentId),
+                    rating: parseInt(rating),
+                    comment: comment
+                };
+                const result = await callApi(`/events/${eventId}/feedback`, 'POST', data);
+                showMessage(result.message);
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
